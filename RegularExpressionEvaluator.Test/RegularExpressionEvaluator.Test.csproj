@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegularExpressionRepeatTest.cs" />
     <Compile Include="RegularExpressionTest.cs" />
+    <Compile Include="RegularExpressionTester.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RegularExpressionEvaluator\RegularExpressionEvaluator.csproj">

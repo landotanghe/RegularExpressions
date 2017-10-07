@@ -85,7 +85,6 @@ namespace RegularExpressionEvaluator
                 while (PatternReader.HasUnprocessedInput())
                 {
                     var symbol = PatternReader.ReadNextSymbol();
-
                     var currentState = StateNamer.CreateNameForIntermediateState();
 
                     AutomatonBuilder.State(currentState)
