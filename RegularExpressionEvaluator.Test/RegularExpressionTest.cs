@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static RegularExpressionEvaluator.RegularExpression;
 
 namespace RegularExpressionEvaluator.Test
 {
@@ -12,7 +13,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = string.Empty;
             var text = string.Empty;
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -23,7 +24,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = "a";
             var text = "a";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -34,7 +35,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = "abc";
             var text = "abc";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -45,7 +46,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = "abc";
             var text = "abd";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsFalse(regex.IsMatch(text));
         }
@@ -56,7 +57,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = @"\t";
             var text = "\t";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -67,7 +68,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = @"\\";
             var text = "\\";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -78,7 +79,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = @"\{";
             var text = "{";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
@@ -89,7 +90,7 @@ namespace RegularExpressionEvaluator.Test
             var pattern = @"\(";
             var text = "(";
 
-            var regex = new RegularExpression(pattern);
+            var regex = RegularExpression.For(pattern);
 
             Assert.IsTrue(regex.IsMatch(text));
         }
