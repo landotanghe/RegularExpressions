@@ -34,12 +34,12 @@
       <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FakeItEasy, Version=3.4.2.0, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
-      <HintPath>..\packages\FakeItEasy.3.4.2\lib\net45\FakeItEasy.dll</HintPath>
+    <Reference Include="FakeItEasy, Version=4.0.0.0, Culture=neutral, PublicKeyToken=eff28e2146d5fd2c, processorArchitecture=MSIL">
+      <HintPath>..\packages\FakeItEasy.4.0.0\lib\net45\FakeItEasy.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FiniteAutomota, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\lando.tanghe.Compiler.Automata.1.1.0\lib\net452\FiniteAutomota.dll</HintPath>
+    <Reference Include="FiniteAutomota, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\lando.tanghe.Compiler.Automata.1.4.0\lib\net452\FiniteAutomota.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />

@@ -11,6 +11,35 @@ namespace RegularExpressionEvaluator
         private const string StartState = "Start";
         private const string FinalState = "Final";
 
+        private class PatternReader
+        {
+            public const char EscapeChar = '\\';
+
+            private int nextSymbolPosition = 0;
+            private string _input;
+            public PatternReader(string input)
+            {
+                _input = input;
+            }
+
+            public char ReadNextSymbol()
+            {
+                var nextSymbol = _input[nextSymbolPosition++];
+                if (nextSymbol == EscapeChar)
+                {
+                    nextSymbol = _input[nextSymbolPosition++];
+                    if (nextSymbol == 't')
+                        nextSymbol = '\t';
+                }
+                return nextSymbol;
+            }
+
+            public bool HasUnprocessedInput()
+            {
+                return nextSymbolPosition < _input.Length;
+            }
+        }
+
         public RegularExpression(string pattern)
         {
             var automatonBuilder = new AutomatonBuilder();
@@ -19,15 +48,19 @@ namespace RegularExpressionEvaluator
             automatonBuilder
                 .State(StartState).ActiveAtStart();
 
+            var reader = new PatternReader(pattern);
+            
             var previousState = StartState;
-            for (int i =0; i < pattern.Length; i++)
+            while(reader.HasUnprocessedInput())
             {
-                var input = pattern[i];
+                var symbol = reader.ReadNextSymbol();
 
                 var currentState = "Character " + stateId++;
 
                 automatonBuilder.State(currentState)
-                    .Transition().On(input).From(previousState).To(currentState);
+                    .Transition().On(symbol).From(previousState).To(currentState);
+
+                previousState = currentState;
             }
 
             automatonBuilder.State(FinalState)
