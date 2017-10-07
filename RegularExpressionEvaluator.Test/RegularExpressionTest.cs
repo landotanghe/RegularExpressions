@@ -40,31 +40,25 @@ namespace RegularExpressionEvaluator.Test
         [TestMethod]
         public void Tab_Escaped_T_Match()
         {
-            TestThatRegularExpression.WithPattern(@"\t")
-                .Matches("\t");
+            TestThatRegularExpression.WithPattern(@"\t").Matches("\t");
         }
         
         [TestMethod]
-        public void BashSlash_Escaped_BackSlash_Match()
+        public void BackSlash_Escaped_BackSlash_Match()
         {
-
-            TestThatRegularExpression.WithPattern(@"\\")
-                .Matches("\\");
+            TestThatRegularExpression.WithPattern(@"\\").Matches("\\");
         }
 
         [TestMethod]
         public void OpenBrace_Escaped_OpenBrace_Match()
         {
-            TestThatRegularExpression.WithPattern(@"\{")
-                .Matches("{");
+            TestThatRegularExpression.WithPattern(@"\{").Matches("{");
         }
 
         [TestMethod]
         public void OpenParenthese_Escaped_OpenParenthese_Match()
         {
-
-            TestThatRegularExpression.WithPattern(@"\(")
-                .Matches("(");
+            TestThatRegularExpression.WithPattern(@"\(").Matches("(");
         }
     }
 }

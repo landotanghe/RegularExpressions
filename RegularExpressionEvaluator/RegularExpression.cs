@@ -19,6 +19,8 @@ namespace RegularExpressionEvaluator
         private class PatternReader
         {
             public const char EscapeChar = '\\';
+            public const char OrOperator = '|';
+            private readonly static char[] EscapableCharactersWithSpecialMeaning = {'\\', '{', '}', '(', ')', '|' };
 
             private int nextSymbolPosition = 0;
             private string _input;
@@ -27,22 +29,75 @@ namespace RegularExpressionEvaluator
                 _input = input;
             }
 
-            public char ReadNextSymbol()
+            public Token ReadNextToken()
             {
+                if (!HasUnprocessedInput())
+                    return new Token(' ', TokenType.EndOfInput);
+
                 var nextSymbol = _input[nextSymbolPosition++];
                 if (nextSymbol == EscapeChar)
                 {
-                    nextSymbol = _input[nextSymbolPosition++];
-                    if (nextSymbol == 't')
-                        nextSymbol = '\t';
+                    return ReadEscapedToken();
                 }
-                return nextSymbol;
+                else
+                {
+                    return CreateUnescapedToken(nextSymbol);
+                }
             }
 
-            public bool HasUnprocessedInput()
+
+            private Token ReadEscapedToken()
+            {
+                if (!HasUnprocessedInput())
+                    throw new System.Exception("expected input after \\");
+
+                var nextSymbol = _input[nextSymbolPosition++];
+                if (nextSymbol == 't')
+                {
+                    return new Token('\t', TokenType.Character);
+                }
+                else if (EscapableCharactersWithSpecialMeaning.Contains(nextSymbol))
+                {
+                    return new Token(nextSymbol, TokenType.Character);
+                }
+                else
+                {
+                    throw new System.Exception($"unexpected input symbol {nextSymbol} at position {nextSymbolPosition-1}");
+                }
+            }
+
+            private static Token CreateUnescapedToken(char nextSymbol)
+            {
+                if (nextSymbol == OrOperator)
+                {
+                    return new Token(OrOperator, TokenType.OrOperator);
+                }
+                return new Token(nextSymbol, TokenType.Character);
+            }
+
+            private bool HasUnprocessedInput()
             {
                 return nextSymbolPosition < _input.Length;
             }
+        }
+
+        public enum TokenType
+        {
+            Character,
+            OrOperator,
+            EndOfInput
+        }
+
+        public class Token
+        {
+            public Token(char sybmol, TokenType tokenType)
+            {
+                Symbol = sybmol;
+                TokenType = tokenType;
+            }
+
+            public char Symbol { get; }
+            public TokenType TokenType { get; }
         }
 
         public static RegularExpression For(string pattern)
@@ -53,10 +108,10 @@ namespace RegularExpressionEvaluator
 
         internal class RegularExpressionBuilder
         {
+
             private StateNamer StateNamer;
             private PatternReader PatternReader;
             private AutomatonBuilder AutomatonBuilder;
-            private int stateId = 0;
 
             public RegularExpressionBuilder(string pattern)
             {
@@ -67,38 +122,40 @@ namespace RegularExpressionEvaluator
 
             public RegularExpression Build()
             {
-                var sequence = ReadSequence();
+                var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+
+                AutomatonBuilder.State(sequence.StartState).ActiveAtStart();
+                AutomatonBuilder.State(sequence.EndState);
+
+                CreateStatesFor(sequence);
                 var automaton = AutomatonBuilder.Build();
                 return new RegularExpression(automaton, sequence);
             }
 
-            private Sequence ReadSequence()
+            private void CreateStatesFor(Sequence sequence)
             {
-                var sequence = new Sequence
-                {
-                    StartState = StateNamer.CreateNameForStartOfSequence()
-                };
-
-                AutomatonBuilder.State(sequence.StartState).ActiveAtStart();
 
                 var previousState = sequence.StartState;
-                while (PatternReader.HasUnprocessedInput())
-                {
-                    var symbol = PatternReader.ReadNextSymbol();
+                var token = PatternReader.ReadNextToken();
+                while (token.TokenType == TokenType.Character)
+                {      
                     var currentState = StateNamer.CreateNameForIntermediateState();
 
                     AutomatonBuilder.State(currentState)
-                        .Transition().On(symbol).From(previousState).To(currentState);
+                        .Transition().On(token.Symbol).From(previousState).To(currentState);
 
                     previousState = currentState;
+                    token = PatternReader.ReadNextToken();
                 }
 
-                sequence.EndState = StateNamer.CreateNameForEndOfSequence();
+                if (token.TokenType == TokenType.OrOperator)
+                {
+                    // To create an or operator, simply add an alternative path for same start and stop states
+                    CreateStatesFor(sequence);
+                }
 
-                AutomatonBuilder.State(sequence.EndState)
+                AutomatonBuilder
                     .Transition().OnEpsilon().From(previousState).To(sequence.EndState);
-
-                return sequence;
             }
         }
 
@@ -129,8 +186,13 @@ namespace RegularExpressionEvaluator
 
         internal class Sequence
         {
-            public string StartState { get; set; }
-            public string EndState { get; set; }
+            public Sequence(string startState, string endState)
+            {
+                StartState = startState;
+                EndState = endState;
+            }
+            public string StartState { get;  }
+            public string EndState { get;  }
         }
 
         
