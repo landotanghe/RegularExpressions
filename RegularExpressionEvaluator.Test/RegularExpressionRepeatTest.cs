@@ -24,6 +24,7 @@ namespace RegularExpressionEvaluator.Test
                 .Matches("b")
                 .Matches("ba")
                 .Matches("baa")
+                .DoesNotMatch("baba")
                 .Matches("baaaaaaaaaaaaaaa");
         }
 
@@ -35,7 +36,31 @@ namespace RegularExpressionEvaluator.Test
                 .Matches("b")
                 .Matches("ab")
                 .Matches("aab")
+                .DoesNotMatch("abab")
                 .Matches("aaaaaaaaaaaaaaab");
+        }
+
+
+        [TestMethod]
+        public void SymbolsBetweenParentheses_RepeatedAnyNumberOfTimes()
+        {
+            TestThatRegularExpression.WithPattern("(ab)*")
+                .DoesNotMatch("(ab)*")
+                .Matches(string.Empty)
+                .Matches("ab")
+                .Matches("abab")
+                .Matches("abababababababababab");
+        }
+
+        [TestMethod]
+        public void SymbolsBetweenParentheses_RepeatedAnyNumberOfTimes_PrefixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("c(ab)*")
+                .DoesNotMatch("c(ab)*")
+                .Matches("c")
+                .Matches("cab")
+                .Matches("cabab")
+                .Matches("cabababababababababab");
         }
     }
 }

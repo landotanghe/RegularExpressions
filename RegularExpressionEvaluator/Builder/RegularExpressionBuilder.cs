@@ -55,7 +55,7 @@ namespace RegularExpressionEvaluator
 
             if (token.TokenType == TokenType.OrOperator)
             {
-                // To create an or operator, simply add an alternative path for same start and stop states
+                // Alternative path for same start and stop states
                 CreateStatesFor(sequence);
             }
 
@@ -93,6 +93,18 @@ namespace RegularExpressionEvaluator
                 .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
 
             CreateStatesFor(subSequence);
+            
+
+            var nextToken = PatternReader.PeekNextToken();
+            if (nextToken.TokenType == TokenType.Repeat)
+            {
+                PatternReader.ReadNextToken();
+                // Make loop to itself
+                AutomatonBuilder
+                    .Transition().OnEpsilon().From(subSequence.EndState).To(subSequence.StartState)
+                    .Transition().OnEpsilon().From(subSequence.StartState).To(subSequence.EndState);
+            }
+
             return subSequence.EndState;
         }
     }
