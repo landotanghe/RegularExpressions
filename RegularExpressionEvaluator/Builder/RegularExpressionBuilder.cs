@@ -37,24 +37,11 @@ namespace RegularExpressionEvaluator
             {
                 if (token.TokenType == TokenType.Character)
                 {
-                    var currentState = StateNamer.CreateNameForIntermediateState();
-
-                    AutomatonBuilder.State(currentState)
-                        .Transition().On(token.Symbol).From(previousState).To(currentState);
-
-                    previousState = currentState;
+                    previousState = HandleCharacter(previousState, token.Symbol);
                 }
                 else if (token.TokenType == TokenType.StartNewSequence)
                 {
-                    var subSequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
-
-                    AutomatonBuilder
-                        .State(subSequence.StartState)
-                        .State(subSequence.EndState)
-                        .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
-
-                    CreateStatesFor(subSequence);
-                    previousState = subSequence.EndState;
+                    previousState = HandleNewSubSequence(previousState);
                 }
                 else
                 {
@@ -71,6 +58,31 @@ namespace RegularExpressionEvaluator
 
             AutomatonBuilder
                 .Transition().OnEpsilon().From(previousState).To(sequence.EndState);
+        }
+
+        private string HandleCharacter(string previousState, char symbol)
+        {
+            var currentState = StateNamer.CreateNameForIntermediateState();
+
+            AutomatonBuilder.State(currentState)
+                .Transition().On(symbol).From(previousState).To(currentState);
+
+            previousState = currentState;
+            return previousState;
+        }
+
+        private string HandleNewSubSequence(string previousState)
+        {
+            var subSequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+
+            AutomatonBuilder
+                .State(subSequence.StartState)
+                .State(subSequence.EndState)
+                .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
+
+            CreateStatesFor(subSequence);
+            previousState = subSequence.EndState;
+            return previousState;
         }
     }
 }
