@@ -62,5 +62,31 @@ namespace RegularExpressionEvaluator.Test
                 .Matches("cabab")
                 .Matches("cabababababababababab");
         }
+
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedExactlyThreeTimes()
+        {
+            TestThatRegularExpression.WithPattern("a{3}")
+                .DoesNotMatch("a{3}")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("a")
+                .DoesNotMatch("aaaaaaa")
+                .Matches("aaa");
+        }
+
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedMin2_Max5_Times()
+        {
+            TestThatRegularExpression.WithPattern("a{2,5}")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("a")
+                .Matches("aa")
+                .Matches("aaa")
+                .Matches("aaaa")
+                .Matches("aaaaa")
+                .DoesNotMatch("aaaaaa");
+        }
     }
 }

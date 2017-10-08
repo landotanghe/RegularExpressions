@@ -68,7 +68,30 @@ namespace RegularExpressionEvaluator
             var currentState = StateNamer.CreateNameForIntermediateState();
 
             var nextToken = PatternReader.PeekNextToken();
-            if (nextToken.TokenType == TokenType.Repeat)
+            if (nextToken.TokenType == TokenType.OpenRepeat)
+            {
+                var repetitions = PatternReader.ReadRepetions();
+                for(int i = 0; i < repetitions.Minimum; i++)
+                {
+                    AutomatonBuilder.State(currentState)
+                        .Transition().On(symbol).From(previousState).To(currentState);
+                    previousState = currentState;
+                    currentState = StateNamer.CreateNameForIntermediateState();
+                }
+                var optionalRepetitions = repetitions.Maximum - repetitions.Minimum;
+                for(int i=0; i < optionalRepetitions; i++)
+                {
+                    AutomatonBuilder.State(currentState)
+                        .Transition().OnEpsilon().From(previousState).To(currentState)
+                        .Transition().On(symbol).From(previousState).To(currentState);
+
+                    previousState = currentState;
+                    currentState = StateNamer.CreateNameForIntermediateState();
+                }
+
+                currentState = previousState;
+            }
+            else if (nextToken.TokenType == TokenType.Repeat)
             {
                 PatternReader.ReadNextToken();
                 AutomatonBuilder.State(currentState)

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using RegularExpressionEvaluator.Builder;
+using System;
+using System.Linq;
 
 namespace RegularExpressionEvaluator
 {
@@ -9,9 +11,16 @@ namespace RegularExpressionEvaluator
         public const char StartNewSequence = '(';
         public const char EndNewSequence = ')';
         public const char Tab = '\t';
-        public const char Repeat = '*';
+        public class Repeat
+        {
+            public const char ZerorOrMore = '*';
+            public const char Open = '{';
+            public const char Close = '}';
+            public const char Separator = ',';
+        }
         private readonly static char[] EscapableCharactersWithSpecialMeaning = {
-            EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator, Repeat };
+            EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator,
+            Repeat.ZerorOrMore, Repeat.Open, Repeat.Close };
 
         private int nextSymbolPosition = 0;
         private string _input;
@@ -57,6 +66,45 @@ namespace RegularExpressionEvaluator
             }
         }
 
+        public Repetitions ReadRepetions()
+        {
+            var openTagPosition = nextSymbolPosition;
+            var closingTagPosition = _input.IndexOf(Repeat.Close, openTagPosition);
+            nextSymbolPosition = closingTagPosition + 1;
+            if (closingTagPosition == -1)
+                throw new Exception($"Expected symbol {Repeat.Close}");
+
+            var separatorPosition = _input.IndexOf(Repeat.Separator, openTagPosition);
+            if(separatorPosition == -1)
+            {
+                var exactAmount = ReadAmount(openTagPosition + 1, closingTagPosition);
+                return new Repetitions
+                {
+                    Minimum = exactAmount,
+                    Maximum = exactAmount
+                };
+
+            }
+            else
+            {
+                var minAmount = ReadAmount(openTagPosition + 1, separatorPosition);
+                var maxAmount = ReadAmount(separatorPosition + 1, closingTagPosition);
+                return new Repetitions
+                {
+                    Minimum = minAmount,
+                    Maximum = maxAmount
+                };
+            }
+        }
+
+        private int ReadAmount(int startPosition, int firstNonNumberPosition)
+        {
+            var numberLength = firstNonNumberPosition - startPosition;
+            var exactAmountString = _input.Substring(startPosition, numberLength);
+            var exactAmount = int.Parse(exactAmountString);
+            return exactAmount;
+        }
+
         private Token PeekAtEscapedToken()
         {
             if (!HasUnprocessedInput())
@@ -91,9 +139,13 @@ namespace RegularExpressionEvaluator
             {
                 return new Token(EndNewSequence, TokenType.EndNewSequence);
             }
-            if(nextSymbol == Repeat)
+            if(nextSymbol == Repeat.ZerorOrMore)
             {
-                return new Token(Repeat, TokenType.Repeat);
+                return new Token(Repeat.ZerorOrMore, TokenType.Repeat);
+            }
+            if(nextSymbol == Repeat.Open)
+            {
+                return new Token(Repeat.Open, TokenType.OpenRepeat);
             }
             return new Token(nextSymbol, TokenType.Character);
         }
