@@ -70,6 +70,8 @@ namespace RegularExpressionEvaluator
             var nextToken = PatternReader.PeekNextToken();
             if (nextToken.TokenType == TokenType.OpenRepeat)
             {
+                var sequenceToRepeat = new Sequence(currentState, currentState);
+
                 var repetitions = PatternReader.ReadRepetions();
                 for(int i = 0; i < repetitions.Minimum; i++)
                 {

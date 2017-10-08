@@ -88,5 +88,31 @@ namespace RegularExpressionEvaluator.Test
                 .Matches("aaaaa")
                 .DoesNotMatch("aaaaaa");
         }
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedMin2_Max5_Times_SuffixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("a{2,5}b")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("ab")
+                .Matches("aab")
+                .Matches("aaab")
+                .Matches("aaaab")
+                .Matches("aaaaab")
+                .DoesNotMatch("aaaaaab");
+        }
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedMin2_Max5_Times_PrefixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("ba{2,5}")
+                .DoesNotMatch("b")
+                .DoesNotMatch("ba")
+                .Matches("baa")
+                .Matches("baaa")
+                .Matches("baaaa")
+                .Matches("baaaaa")
+                .DoesNotMatch("baaaaaa");
+        }
     }
 }

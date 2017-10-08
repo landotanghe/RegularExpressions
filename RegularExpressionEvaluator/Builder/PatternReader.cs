@@ -19,7 +19,7 @@ namespace RegularExpressionEvaluator
             public const char Separator = ',';
         }
         private readonly static char[] EscapableCharactersWithSpecialMeaning = {
-            EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator,
+            EscapeChar, StartNewSequence, EndNewSequence, OrOperator,
             Repeat.ZerorOrMore, Repeat.Open, Repeat.Close };
 
         private int nextSymbolPosition = 0;
