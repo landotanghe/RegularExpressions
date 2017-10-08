@@ -1,5 +1,4 @@
 ﻿using FiniteAutomota.NonDeterministic;
-using System.Linq;
 
 namespace RegularExpressionEvaluator
 {
@@ -8,9 +7,9 @@ namespace RegularExpressionEvaluator
         private Automaton<string, char> _automaton;
         private Sequence CompleteSequence;
         
-        internal RegularExpression(Automaton<string, char> automaton, Sequence sequence)
+        internal RegularExpression(Sequence sequence)
         {
-            _automaton = automaton;
+            _automaton = sequence.Builder.Build();
             CompleteSequence = sequence;
         }
         

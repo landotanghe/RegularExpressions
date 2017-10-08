@@ -23,7 +23,7 @@ namespace RegularExpressionEvaluator.Test
         {
             var regex = RegularExpression.For(_pattern);
 
-            Assert.IsTrue(regex.IsMatch(text), $"pattern '{_pattern}'\r\n should match '{text}'");
+            Assert.IsTrue(regex.IsMatch(text), $"pattern '{_pattern}' should match '{text}'");
 
             return this;
         }
@@ -33,7 +33,7 @@ namespace RegularExpressionEvaluator.Test
         {
             var regex = RegularExpression.For(_pattern);
 
-            Assert.IsFalse(regex.IsMatch(text));
+            Assert.IsFalse(regex.IsMatch(text), $"pattern '{_pattern}' should not match '{text}'");
 
             return this;
         }

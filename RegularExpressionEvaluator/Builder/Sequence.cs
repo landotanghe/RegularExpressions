@@ -1,4 +1,6 @@
-﻿namespace RegularExpressionEvaluator
+﻿using FiniteAutomota.NonDeterministic.Builder;
+
+namespace RegularExpressionEvaluator
 {
     internal class Sequence
     {
@@ -6,7 +8,13 @@
         {
             StartState = startState;
             EndState = endState;
+            Builder = new AutomatonBuilder();
+            Builder.State(startState).ActiveAtStart()
+                .State(endState).Final();
         }
+
+        public AutomatonBuilder Builder { get; }
+
         public string StartState { get; }
         public string EndState { get; }
     }
