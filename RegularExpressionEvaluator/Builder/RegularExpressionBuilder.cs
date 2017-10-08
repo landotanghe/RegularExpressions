@@ -22,7 +22,7 @@ namespace RegularExpressionEvaluator
             var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
 
             AutomatonBuilder.State(sequence.StartState).ActiveAtStart();
-            AutomatonBuilder.State(sequence.EndState);
+            AutomatonBuilder.State(sequence.EndState).Final();
 
             CreateStatesFor(sequence);
             var automaton = AutomatonBuilder.Build();
@@ -71,24 +71,24 @@ namespace RegularExpressionEvaluator
             if (nextToken.TokenType == TokenType.OpenRepeat)
             {
                 var sequenceToRepeat = new Sequence(currentState, currentState);
+                var x = sequenceToRepeat.StartState;
 
                 var repetitions = PatternReader.ReadRepetions();
                 for(int i = 0; i < repetitions.Minimum; i++)
                 {
-                    AutomatonBuilder.State(currentState)
-                        .Transition().On(symbol).From(previousState).To(currentState);
-                    previousState = currentState;
-                    currentState = StateNamer.CreateNameForIntermediateState();
+                    AutomatonBuilder.State(x)
+                        .Transition().On(symbol).From(previousState).To(x);
+                    previousState = x;
+                    x = StateNamer.CreateNameForIntermediateState();
                 }
-                var optionalRepetitions = repetitions.Maximum - repetitions.Minimum;
-                for(int i=0; i < optionalRepetitions; i++)
+                for(int i = repetitions.Minimum; i < repetitions.Maximum; i++)
                 {
-                    AutomatonBuilder.State(currentState)
-                        .Transition().OnEpsilon().From(previousState).To(currentState)
-                        .Transition().On(symbol).From(previousState).To(currentState);
+                    AutomatonBuilder.State(x)
+                        .Transition().OnEpsilon().From(previousState).To(x)
+                        .Transition().On(symbol).From(previousState).To(x);
 
-                    previousState = currentState;
-                    currentState = StateNamer.CreateNameForIntermediateState();
+                    previousState = x;
+                    x = StateNamer.CreateNameForIntermediateState();
                 }
 
                 currentState = previousState;

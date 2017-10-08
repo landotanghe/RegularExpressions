@@ -28,7 +28,7 @@ namespace RegularExpressionEvaluator
                 _automaton.Process(symbol);
             }
 
-            return _automaton.GetActiveStates().Any(state => state.Description == CompleteSequence.EndState);
+            return _automaton.IsAccepted();
         }
     }
 }
