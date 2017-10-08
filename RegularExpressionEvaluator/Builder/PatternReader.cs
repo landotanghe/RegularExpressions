@@ -19,15 +19,15 @@ namespace RegularExpressionEvaluator
             _input = input;
         }
 
-        public Token ReadNextToken()
+        public Token PeekNextToken()
         {
             if (!HasUnprocessedInput())
                 return new Token(' ', TokenType.EndOfInput);
 
-            var nextSymbol = _input[nextSymbolPosition++];
+            var nextSymbol = _input[nextSymbolPosition];
             if (nextSymbol == EscapeChar)
             {
-                return ReadEscapedToken();
+                return PeekAtEscapedToken();
             }
             else
             {
@@ -35,12 +35,31 @@ namespace RegularExpressionEvaluator
             }
         }
 
-        private Token ReadEscapedToken()
+        public Token ReadNextToken()
+        {
+            if (!HasUnprocessedInput())
+                return new Token(' ', TokenType.EndOfInput);
+
+            var nextSymbol = _input[nextSymbolPosition];
+            if (nextSymbol == EscapeChar)
+            {
+                var token = PeekAtEscapedToken();
+                nextSymbolPosition+=2;
+                return token;
+            }
+            else
+            {
+                nextSymbolPosition++;
+                return CreateUnescapedToken(nextSymbol);
+            }
+        }
+
+        private Token PeekAtEscapedToken()
         {
             if (!HasUnprocessedInput())
                 throw new System.Exception("expected input after \\");
 
-            var nextSymbol = _input[nextSymbolPosition++];
+            var nextSymbol = _input[nextSymbolPosition+1];
             if (nextSymbol == 't')
             {
                 return new Token(Tab, TokenType.Character);
@@ -51,7 +70,7 @@ namespace RegularExpressionEvaluator
             }
             else
             {
-                throw new System.Exception($"unexpected input symbol {nextSymbol} at position {nextSymbolPosition - 1}");
+                throw new System.Exception($"unexpected input symbol {nextSymbol} at position {nextSymbolPosition + 1}");
             }
         }
 
