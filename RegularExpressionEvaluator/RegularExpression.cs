@@ -1,5 +1,6 @@
 ﻿using FiniteAutomota.NonDeterministic;
 using FiniteAutomota.NonDeterministic.Builder;
+using System;
 using System.Linq;
 
 namespace RegularExpressionEvaluator
@@ -20,7 +21,10 @@ namespace RegularExpressionEvaluator
         {
             public const char EscapeChar = '\\';
             public const char OrOperator = '|';
-            private readonly static char[] EscapableCharactersWithSpecialMeaning = {'\\', '{', '}', '(', ')', '|' };
+            public const char StartNewSequence = '(';
+            public const char EndNewSequence = ')';
+            public const char Tab = '\t';
+            private readonly static char[] EscapableCharactersWithSpecialMeaning = { EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator };
 
             private int nextSymbolPosition = 0;
             private string _input;
@@ -54,7 +58,7 @@ namespace RegularExpressionEvaluator
                 var nextSymbol = _input[nextSymbolPosition++];
                 if (nextSymbol == 't')
                 {
-                    return new Token('\t', TokenType.Character);
+                    return new Token(Tab, TokenType.Character);
                 }
                 else if (EscapableCharactersWithSpecialMeaning.Contains(nextSymbol))
                 {
@@ -72,6 +76,14 @@ namespace RegularExpressionEvaluator
                 {
                     return new Token(OrOperator, TokenType.OrOperator);
                 }
+                if(nextSymbol == StartNewSequence)
+                {
+                    return new Token(StartNewSequence, TokenType.StartNewSequence);
+                }
+                if (nextSymbol == EndNewSequence)
+                {
+                    return new Token(EndNewSequence, TokenType.EndNewSequence);
+                }
                 return new Token(nextSymbol, TokenType.Character);
             }
 
@@ -85,7 +97,9 @@ namespace RegularExpressionEvaluator
         {
             Character,
             OrOperator,
-            EndOfInput
+            EndOfInput,
+            StartNewSequence,
+            EndNewSequence
         }
 
         public class Token
@@ -134,20 +148,37 @@ namespace RegularExpressionEvaluator
 
             private void CreateStatesFor(Sequence sequence)
             {
-
                 var previousState = sequence.StartState;
                 var token = PatternReader.ReadNextToken();
-                while (token.TokenType == TokenType.Character)
-                {      
-                    var currentState = StateNamer.CreateNameForIntermediateState();
+                while (token.TokenType == TokenType.Character || token.TokenType == TokenType.StartNewSequence)
+                {   
+                    if(token.TokenType == TokenType.Character)
+                    {
+                        var currentState = StateNamer.CreateNameForIntermediateState();
 
-                    AutomatonBuilder.State(currentState)
-                        .Transition().On(token.Symbol).From(previousState).To(currentState);
+                        AutomatonBuilder.State(currentState)
+                            .Transition().On(token.Symbol).From(previousState).To(currentState);
 
-                    previousState = currentState;
+                        previousState = currentState;
+                    }else if(token.TokenType == TokenType.StartNewSequence)
+                    {
+                        var subSequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+
+                        AutomatonBuilder
+                            .State(subSequence.StartState)
+                            .State(subSequence.EndState)
+                            .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
+
+                        CreateStatesFor(subSequence);
+                        previousState = subSequence.EndState;
+                    }
+                    else
+                    {
+                        throw new NotImplementedException($"Token type {token.TokenType} can not be handled");
+                    }
                     token = PatternReader.ReadNextToken();
                 }
-
+                
                 if (token.TokenType == TokenType.OrOperator)
                 {
                     // To create an or operator, simply add an alternative path for same start and stop states

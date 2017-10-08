@@ -46,6 +46,43 @@ namespace RegularExpressionEvaluator.Test
         }
 
         [TestMethod]
+        public void Pipe_Within_Parentheses()
+        {
+            TestThatRegularExpression.WithPattern("hello(world|test)")
+                .Matches("helloworld")
+                .Matches("hellotest")
+                .DoesNotMatch("hello")
+                .DoesNotMatch("world")
+                .DoesNotMatch("test");
+        }
+
+
+        [TestMethod]
+        public void Pipe_Outside_Parentheses()
+        {
+            TestThatRegularExpression.WithPattern("(hello)world|test")
+                .Matches("helloworld")
+                .Matches("test")
+                .DoesNotMatch("hellotest")
+                .DoesNotMatch("world")
+                .DoesNotMatch("hello");
+        }
+
+
+        [TestMethod]
+        public void Pipe_Within_MultipleParentheses()
+        {
+            TestThatRegularExpression.WithPattern("hello(world|(test| there))")
+                .Matches("helloworld")
+                .Matches("hellotest")
+                .Matches("hello there")
+                .DoesNotMatch("hello")
+                .DoesNotMatch("world")
+                .DoesNotMatch("test")
+                .DoesNotMatch("there");
+        }
+
+        [TestMethod]
         public void Pipe_Escaped_LiteralPipe()
         {
             TestThatRegularExpression.WithPattern(@"\|").Matches("|");
