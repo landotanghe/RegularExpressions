@@ -9,11 +9,14 @@ namespace RegularExpressionEvaluator
         public const char StartNewSequence = '(';
         public const char EndNewSequence = ')';
         public const char Tab = '\t';
+        public const char Repeat = '*';
         private readonly static char[] EscapableCharactersWithSpecialMeaning = {
-            EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator };
+            EscapeChar, '{', '}', StartNewSequence, EndNewSequence, OrOperator, Repeat };
 
         private int nextSymbolPosition = 0;
         private string _input;
+
+
         public PatternReader(string input)
         {
             _input = input;
@@ -87,6 +90,10 @@ namespace RegularExpressionEvaluator
             if (nextSymbol == EndNewSequence)
             {
                 return new Token(EndNewSequence, TokenType.EndNewSequence);
+            }
+            if(nextSymbol == Repeat)
+            {
+                return new Token(Repeat, TokenType.Repeat);
             }
             return new Token(nextSymbol, TokenType.Character);
         }

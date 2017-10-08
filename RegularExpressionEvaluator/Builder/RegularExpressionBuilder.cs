@@ -50,6 +50,9 @@ namespace RegularExpressionEvaluator
                 token = PatternReader.ReadNextToken();
             }
 
+            if (token.TokenType != TokenType.OrOperator && token.TokenType != TokenType.EndNewSequence && token.TokenType != TokenType.EndOfInput)
+                throw new Exception($"Token {token.TokenType} not expected here");
+
             if (token.TokenType == TokenType.OrOperator)
             {
                 // To create an or operator, simply add an alternative path for same start and stop states
@@ -64,11 +67,20 @@ namespace RegularExpressionEvaluator
         {
             var currentState = StateNamer.CreateNameForIntermediateState();
 
-            AutomatonBuilder.State(currentState)
-                .Transition().On(symbol).From(previousState).To(currentState);
-
-            previousState = currentState;
-            return previousState;
+            var nextToken = PatternReader.PeekNextToken();
+            if (nextToken.TokenType == TokenType.Repeat)
+            {
+                PatternReader.ReadNextToken();
+                AutomatonBuilder.State(currentState)
+                    .Transition().OnEpsilon().From(previousState).To(currentState)
+                    .Transition().On(symbol).From(currentState).To(currentState);
+            }
+            else
+            {
+                AutomatonBuilder.State(currentState)
+                    .Transition().On(symbol).From(previousState).To(currentState);
+            }
+            return currentState;
         }
 
         private string HandleNewSubSequence(string previousState)
@@ -81,8 +93,7 @@ namespace RegularExpressionEvaluator
                 .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
 
             CreateStatesFor(subSequence);
-            previousState = subSequence.EndState;
-            return previousState;
+            return subSequence.EndState;
         }
     }
 }

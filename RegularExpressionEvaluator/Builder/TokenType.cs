@@ -6,6 +6,7 @@
         OrOperator,
         EndOfInput,
         StartNewSequence,
-        EndNewSequence
+        EndNewSequence,
+        Repeat
     }
 }
