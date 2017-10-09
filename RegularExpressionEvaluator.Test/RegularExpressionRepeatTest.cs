@@ -65,10 +65,10 @@ namespace RegularExpressionEvaluator.Test
 
 
         [TestMethod]
-        public void SingleSymbol_RepeatedExactlyThreeTimes()
+        public void SingleSymbol_RepeatedExactlyTwoTimes()
         {
-            TestThatRegularExpression.WithPattern("a{3}")
-                .DoesNotMatch("a{3}")
+            TestThatRegularExpression.WithPattern("a{2}")
+                .DoesNotMatch("a{2}")
                 .DoesNotMatch(string.Empty)
                 .DoesNotMatch("a")
                 .DoesNotMatch("aaaaaaa")

@@ -31,6 +31,7 @@ namespace RegularExpressionEvaluator
             while (token.TokenType == TokenType.Character || token.TokenType == TokenType.StartNewSequence)
             {
                 Sequence subsequence = CreateSubsequence(previous, token);
+                subsequence = Repeat(subsequence);
 
                 var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
                 sequence.Builder.SubSequence(subsequence.Builder, subSequenceName)
@@ -72,52 +73,69 @@ namespace RegularExpressionEvaluator
             return subsequence;
         }
 
-        private Sequence CharacterSequence(char symbol)
+        private Sequence Repeat(Sequence sequenceToRepeat)
         {
-            var sequenceToRepeat = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
-            sequenceToRepeat.Builder
-                .Transition().On(symbol).From(sequenceToRepeat.StartState).To(sequenceToRepeat.EndState);
-
             var nextToken = PatternReader.PeekNextToken();
             if (nextToken.TokenType == TokenType.OpenRepeat)
             {
-                var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
-                var repetitions = PatternReader.ReadRepetions();
-                var previous = sequence.StartState;
-                for(int i = 0; i < repetitions.Minimum; i++)
-                {
-                    var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
-                    sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
-                        .Transition().OnEpsilon().From(previous).To(currentRepetition);
-                    previous = currentRepetition;
-                }
-                for(int i = repetitions.Minimum; i < repetitions.Maximum; i++)
-                {
-                    var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
-                    sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
-                        .Transition().OnEpsilon().From(previous).To(currentRepetition)
-                        .Transition().OnEpsilon().From(previous).To(sequence.EndState);
-                    previous = currentRepetition;
-                }
-                sequence.Builder.Transition().OnEpsilon().From(previous).To(sequence.EndState);
-                var test = sequence.Builder.Build();
-                return sequence;
+                return RepeatPredefinedNumberOfTimes(sequenceToRepeat);
             }
             else if (nextToken.TokenType == TokenType.Repeat)
             {
-                var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
-                var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
-                PatternReader.ReadNextToken();
-                sequence.Builder.SubSequence(sequenceToRepeat.Builder, subSequenceName)
-                    .Transition().OnEpsilon().From(sequence.StartState).To(sequence.EndState)
-                    .Transition().OnEpsilon().From(sequence.EndState).To(subSequenceName)
-                    .Transition().OnEpsilon().From(subSequenceName).To(sequence.StartState);
-                return sequence;
+                return RepeatAnyNumberOfTimes(sequenceToRepeat);
             }
             else
             {
                 return sequenceToRepeat;
             }
+        }
+
+        private Sequence RepeatPredefinedNumberOfTimes(Sequence sequenceToRepeat)
+        {
+            var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+            var repetitions = PatternReader.ReadRepetions();
+            var previous = sequence.StartState;
+            for (int i = 0; i < repetitions.Minimum; i++)
+            {
+                var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
+                sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
+                    .Transition().OnEpsilon().From(previous).To(currentRepetition);
+                previous = currentRepetition;
+            }
+            for (int i = repetitions.Minimum; i < repetitions.Maximum; i++)
+            {
+                var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
+                sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
+                    .Transition().OnEpsilon().From(previous).To(currentRepetition)
+                    .Transition().OnEpsilon().From(previous).To(sequence.EndState);
+                previous = currentRepetition;
+            }
+            sequence.Builder.Transition().OnEpsilon().From(previous).To(sequence.EndState);
+            return sequence;
+        }
+
+        private Sequence RepeatAnyNumberOfTimes(Sequence sequenceToRepeat)
+        {
+            var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+            var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
+            PatternReader.ReadNextToken();
+            sequence.Builder.SubSequence(sequenceToRepeat.Builder, subSequenceName)
+                .Transition().OnEpsilon().From(sequence.StartState).To(sequence.EndState)
+                .Transition().OnEpsilon().From(sequence.EndState).To(subSequenceName)
+                .Transition().OnEpsilon().From(subSequenceName).To(sequence.StartState);
+            return sequence;
+        }
+
+        /// <summary>
+        /// (Source)--symbol-->(Target)
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        private Sequence CharacterSequence(char symbol)
+        {
+            var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+            sequence.Builder.Transition().On(symbol).From(sequence.StartState).To(sequence.EndState);
+            return sequence;
         }
 
         private Sequence HandleNewSubSequence(string previousState)
