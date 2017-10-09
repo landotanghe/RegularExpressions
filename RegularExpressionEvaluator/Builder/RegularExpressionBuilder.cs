@@ -26,34 +26,17 @@ namespace RegularExpressionEvaluator
 
         private void CreateStatesFor(Sequence sequence)
         {
-            var previousState = sequence.StartState;
+            var previous = sequence.StartState;
             var token = PatternReader.ReadNextToken();
             while (token.TokenType == TokenType.Character || token.TokenType == TokenType.StartNewSequence)
             {
-                var currentState = StateNamer.CreateNameForIntermediateState();
-                sequence.Builder.State(currentState);
-                if (token.TokenType == TokenType.Character)
-                {
-                    var subsequence = CharacterSequence(token.Symbol);
-                    var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
-                    sequence.Builder.SubSequence(subsequence.Builder, subSequenceName)
-                        .Transition().OnEpsilon().From(previousState).To(subSequenceName)
-                        .Transition().OnEpsilon().From(subSequenceName).To(currentState);
-                    previousState = currentState;
-                }
-                else if (token.TokenType == TokenType.StartNewSequence)
-                {
-                    var subsequence = HandleNewSubSequence(previousState);
-                    var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
-                    sequence.Builder.SubSequence(subsequence.Builder, subSequenceName)
-                        .Transition().OnEpsilon().From(previousState).To(subSequenceName)
-                        .Transition().OnEpsilon().From(subSequenceName).To(currentState);
-                    previousState = currentState;
-                }
-                else
-                {
-                    throw new NotImplementedException($"Token type {token.TokenType} can not be handled");
-                }
+                Sequence subsequence = CreateSubsequence(previous, token);
+
+                var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
+                sequence.Builder.SubSequence(subsequence.Builder, subSequenceName)
+                    .Transition().OnEpsilon().From(previous).To(subSequenceName);
+
+                previous = subSequenceName;
                 token = PatternReader.ReadNextToken();
             }
 
@@ -67,7 +50,26 @@ namespace RegularExpressionEvaluator
             }
 
             sequence.Builder
-                .Transition().OnEpsilon().From(previousState).To(sequence.EndState);
+                .Transition().OnEpsilon().From(previous).To(sequence.EndState);
+        }
+
+        private Sequence CreateSubsequence(string previousState, Token token)
+        {
+            Sequence subsequence;
+            if (token.TokenType == TokenType.Character)
+            {
+                subsequence = CharacterSequence(token.Symbol);
+            }
+            else if (token.TokenType == TokenType.StartNewSequence)
+            {
+                subsequence = HandleNewSubSequence(previousState);
+            }
+            else
+            {
+                throw new NotImplementedException($"Token type {token.TokenType} can not be handled");
+            }
+
+            return subsequence;
         }
 
         private Sequence CharacterSequence(char symbol)
@@ -121,12 +123,6 @@ namespace RegularExpressionEvaluator
         private Sequence HandleNewSubSequence(string previousState)
         {
             var subSequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
-
-            subSequence.Builder
-                .State(subSequence.StartState)
-                .State(subSequence.EndState)
-                .Transition().OnEpsilon().From(previousState).To(subSequence.StartState);
-
             CreateStatesFor(subSequence);            
 
             var nextToken = PatternReader.PeekNextToken();
