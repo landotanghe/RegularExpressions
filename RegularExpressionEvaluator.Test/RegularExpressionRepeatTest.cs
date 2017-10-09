@@ -77,6 +77,57 @@ namespace RegularExpressionEvaluator.Test
 
 
         [TestMethod]
+        public void Sequence_RepeatedExactlyThreeTimes()
+        {
+            TestThatRegularExpression.WithPattern("(ab){3}")
+                .DoesNotMatch("(ab){3}")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("ab")
+                .DoesNotMatch("abab")
+                .DoesNotMatch("abababab")
+                .Matches("ababab");
+        }
+
+        [TestMethod]
+        public void Sequence_RepeatedMin2_Max5_Times()
+        {
+            TestThatRegularExpression.WithPattern("(ab){2,5}")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("ab")
+                .Matches("abab")
+                .Matches("ababab")
+                .Matches("abababab")
+                .Matches("ababababab")
+                .DoesNotMatch("abababababab");
+        }
+
+        [TestMethod]
+        public void Sequence_RepeatedMin2_Max5_Times_SuffixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("(ab){2,5}c")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("abc")
+                .Matches("ababc")
+                .Matches("abababc")
+                .Matches("ababababc")
+                .Matches("abababababc")
+                .DoesNotMatch("ababababababc");
+        }
+
+        [TestMethod]
+        public void Sequence_RepeatedMin2_Max5_Times_PrefixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("c(ab){2,5}")
+                .DoesNotMatch(string.Empty)
+                .DoesNotMatch("cab")
+                .Matches("cabab")
+                .Matches("cababab")
+                .Matches("cabababab")
+                .Matches("cababababab")
+                .DoesNotMatch("cabababababab");
+        }
+
+        [TestMethod]
         public void SingleSymbol_RepeatedMin2_Max5_Times()
         {
             TestThatRegularExpression.WithPattern("a{2,5}")
