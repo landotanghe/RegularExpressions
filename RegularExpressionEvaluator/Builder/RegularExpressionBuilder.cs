@@ -98,8 +98,8 @@ namespace RegularExpressionEvaluator
             for (int i = 0; i < repetitions.Minimum; i++)
             {
                 //TODO find out why it only works with the following 2 lines
-                sequenceToRepeat = new Sequence("test", "unit");
-                sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
+               // sequenceToRepeat = new Sequence("test", "unit");
+               // sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
 
                 var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
                 sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
@@ -109,8 +109,8 @@ namespace RegularExpressionEvaluator
             for (int i = repetitions.Minimum; i < repetitions.Maximum; i++)
             {
                 //TODO find out why it only works with the following 2 lines
-                sequenceToRepeat = new Sequence("test", "unit");
-                sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
+                //sequenceToRepeat = new Sequence("test", "unit");
+                //sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
 
                 var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
                 sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)

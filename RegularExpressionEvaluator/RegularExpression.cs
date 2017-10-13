@@ -4,7 +4,7 @@ namespace RegularExpressionEvaluator
 {
     public class RegularExpression
     {
-        private Automaton<string, char> _automaton;
+        internal Automaton<string, char> _automaton;
         private Sequence CompleteSequence;
         
         internal RegularExpression(Sequence sequence)
