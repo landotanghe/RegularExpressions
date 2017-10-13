@@ -93,6 +93,8 @@ namespace RegularExpressionEvaluator
         private Sequence RepeatPredefinedNumberOfTimes(Sequence sequenceToRepeat)
         {
             var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+
+
             var repetitions = PatternReader.ReadRepetions();
             var previous = sequence.StartState;
             for (int i = 0; i < repetitions.Minimum; i++)
@@ -119,6 +121,7 @@ namespace RegularExpressionEvaluator
                 previous = currentRepetition;
             }
             sequence.Builder.Transition().OnEpsilon().From(previous).To(sequence.EndState);
+            
             return sequence;
         }
 
