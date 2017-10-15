@@ -21,7 +21,7 @@ namespace RegularExpressionEvaluator
         
         public bool IsMatch(string text)
         {
-            //TODO add reset method to automaton
+            _automaton.Reset();
             foreach(var symbol in text)
             {
                 _automaton.Process(symbol);

@@ -13,17 +13,18 @@ namespace RegularExpressionEvaluator.Test
     public class RegularExpressionToTest
     {
         private string _pattern;
+        private RegularExpression _regex;
 
         public RegularExpressionToTest(string pattern)
         {
             _pattern = pattern;
+            _regex = RegularExpression.For(pattern);
         }
 
         public RegularExpressionToTest Matches(string text)
         {
-            var regex = RegularExpression.For(_pattern);
 
-            Assert.IsTrue(regex.IsMatch(text), $"pattern '{_pattern}' should match '{text}'");
+            Assert.IsTrue(_regex.IsMatch(text), $"pattern '{_pattern}' should match '{text}'");
 
             return this;
         }
@@ -31,9 +32,7 @@ namespace RegularExpressionEvaluator.Test
 
         public RegularExpressionToTest DoesNotMatch(string text)
         {
-            var regex = RegularExpression.For(_pattern);
-
-            Assert.IsFalse(regex.IsMatch(text), $"pattern '{_pattern}' should not match '{text}'");
+            Assert.IsFalse(_regex.IsMatch(text), $"pattern '{_pattern}' should not match '{text}'");
 
             return this;
         }

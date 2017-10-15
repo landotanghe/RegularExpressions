@@ -9,7 +9,7 @@ namespace RegularExpression.Examples
             Console.SetBufferSize(3000, Int16.MaxValue - 1);
 
 
-            var regex = RegularExpressionEvaluator.RegularExpression.For("(ab){3}");
+            var regex = RegularExpressionEvaluator.RegularExpression.For("((ab)cc*){3}");
             var automaton = regex._automaton;
 
             var visualizer = new FiniteAutomata.Visualizer.AutomatonVisualizer();
