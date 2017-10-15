@@ -10,6 +10,7 @@
         RepeatZeroOrMore,
         OpenRepeat,
         CloseRepeat,
-        RepeatAtLeastOnce
+        RepeatAtLeastOnce,
+        RepeatOnceOrNot
     }
 }

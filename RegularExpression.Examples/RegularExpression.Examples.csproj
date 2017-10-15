@@ -41,8 +41,8 @@
       <HintPath>..\packages\FiniteAutomata.Visualizer.1.2.0\lib\net452\FiniteAutomata.Visualizer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="FiniteAutomota, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\lando.tanghe.Compiler.Automata.2.2.0\lib\net452\FiniteAutomota.dll</HintPath>
+    <Reference Include="FiniteAutomota, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\lando.tanghe.Compiler.Automata.2.3.0\lib\net452\FiniteAutomota.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

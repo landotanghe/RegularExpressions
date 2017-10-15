@@ -6,6 +6,43 @@ namespace RegularExpressionEvaluator.Test
     public class RegularExpressionRepeatTest
     {
         [TestMethod]
+        public void SingleSymbol_RepeatedOnceOrNot_Match()
+        {
+            TestThatRegularExpression.WithPattern("a?")
+                .DoesNotMatch("a?")
+                .Matches(string.Empty)
+                .Matches("a")
+                .DoesNotMatch("aa")
+                .DoesNotMatch("aaaaaaaaaaaaaaa");
+        }
+
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedOnceOrNot_PrefixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("ba?")
+                .DoesNotMatch("ba?")
+                .Matches("b")
+                .Matches("ba")
+                .DoesNotMatch("baa")
+                .DoesNotMatch("a")
+                .DoesNotMatch("baaaaaaaaaaaaaaa");
+        }
+
+        [TestMethod]
+        public void SingleSymbol_RepeatedOnceOrNot_SuffixExactlyOnce()
+        {
+            TestThatRegularExpression.WithPattern("a?b")
+                .DoesNotMatch("a?b")
+                .Matches("b")
+                .Matches("ab")
+                .DoesNotMatch("aab")
+                .DoesNotMatch("a")
+                .DoesNotMatch("aaaaaaaaaaaaaaab");
+        }
+
+
+        [TestMethod]
         public void SingleSymbol_RepeatedAtLeastOnce_Match()
         {
             TestThatRegularExpression.WithPattern("a+")

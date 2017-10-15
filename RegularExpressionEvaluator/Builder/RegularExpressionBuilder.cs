@@ -82,16 +82,29 @@ namespace RegularExpressionEvaluator
             }
             else if (nextToken.TokenType == TokenType.RepeatZeroOrMore)
             {
+                PatternReader.ReadNextToken();
                 return RepeatAnyNumberOfTimes(sequenceToRepeat);
             }
             else if(nextToken.TokenType == TokenType.RepeatAtLeastOnce)
             {
+                PatternReader.ReadNextToken();
                 return RepeatAtLeastOnce(sequenceToRepeat);
+            }
+            else if(nextToken.TokenType == TokenType.RepeatOnceOrNot)
+            {
+                PatternReader.ReadNextToken();
+                return RepeatOnceOrNot(sequenceToRepeat);
             }
             else
             {
                 return sequenceToRepeat;
             }
+        }
+
+        private Sequence RepeatOnceOrNot(Sequence sequenceToRepeat)
+        {
+            sequenceToRepeat.Builder.State(sequenceToRepeat.StartState).Final();
+            return sequenceToRepeat;
         }
 
         private Sequence RepeatPredefinedNumberOfTimes(Sequence sequenceToRepeat)
@@ -143,7 +156,6 @@ namespace RegularExpressionEvaluator
         {
             var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
             var subSequenceName = SubsequenceNamer.CreateNameForSubSequence();
-            PatternReader.ReadNextToken();
             sequence.Builder.SubSequence(sequenceToRepeat.Builder, subSequenceName)
                 .Transition().OnEpsilon().From(sequence.StartState).To(sequence.EndState)
                 .Transition().OnEpsilon().From(sequence.EndState).To(subSequenceName)
