@@ -7,8 +7,9 @@
         EndOfInput,
         StartNewSequence,
         EndNewSequence,
-        Repeat,
+        RepeatZeroOrMore,
         OpenRepeat,
-        CloseRepeat
+        CloseRepeat,
+        RepeatAtLeastOnce
     }
 }

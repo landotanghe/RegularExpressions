@@ -14,6 +14,7 @@ namespace RegularExpressionEvaluator
         public class Repeat
         {
             public const char ZerorOrMore = '*';
+            public const char AtLeastOnce = '+';
             public const char Open = '{';
             public const char Close = '}';
             public const char Separator = ',';
@@ -141,7 +142,11 @@ namespace RegularExpressionEvaluator
             }
             if(nextSymbol == Repeat.ZerorOrMore)
             {
-                return new Token(Repeat.ZerorOrMore, TokenType.Repeat);
+                return new Token(Repeat.ZerorOrMore, TokenType.RepeatZeroOrMore);
+            }
+            if(nextSymbol == Repeat.AtLeastOnce)
+            {
+                return new Token(Repeat.AtLeastOnce, TokenType.RepeatAtLeastOnce);
             }
             if(nextSymbol == Repeat.Open)
             {

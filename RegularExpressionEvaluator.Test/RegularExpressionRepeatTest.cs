@@ -8,7 +8,7 @@ namespace RegularExpressionEvaluator.Test
         [TestMethod]
         public void SingleSymbol_RepeatedAtLeastOnce_Match()
         {
-            TestThatRegularExpression.WithPattern("a*")
+            TestThatRegularExpression.WithPattern("a+")
                 .DoesNotMatch("a+")
                 .DoesNotMatch(string.Empty)
                 .Matches("a")

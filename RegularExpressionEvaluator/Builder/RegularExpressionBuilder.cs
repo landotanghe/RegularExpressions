@@ -80,9 +80,13 @@ namespace RegularExpressionEvaluator
             {
                 return RepeatPredefinedNumberOfTimes(sequenceToRepeat);
             }
-            else if (nextToken.TokenType == TokenType.Repeat)
+            else if (nextToken.TokenType == TokenType.RepeatZeroOrMore)
             {
                 return RepeatAnyNumberOfTimes(sequenceToRepeat);
+            }
+            else if(nextToken.TokenType == TokenType.RepeatAtLeastOnce)
+            {
+                return RepeatAtLeastOnce(sequenceToRepeat);
             }
             else
             {
@@ -99,10 +103,6 @@ namespace RegularExpressionEvaluator
             var previous = sequence.StartState;
             for (int i = 0; i < repetitions.Minimum; i++)
             {
-                //TODO find out why it only works with the following 2 lines
-               // sequenceToRepeat = new Sequence("test", "unit");
-               // sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
-
                 var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
                 sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
                     .Transition().OnEpsilon().From(previous).To(currentRepetition);
@@ -110,10 +110,6 @@ namespace RegularExpressionEvaluator
             }
             for (int i = repetitions.Minimum; i < repetitions.Maximum; i++)
             {
-                //TODO find out why it only works with the following 2 lines
-                //sequenceToRepeat = new Sequence("test", "unit");
-                //sequenceToRepeat.Builder.Transition().On('a').From("test").To("unit");
-
                 var currentRepetition = SubsequenceNamer.CreateNameForSubSequence();
                 sequence.Builder.SubSequence(sequenceToRepeat.Builder, currentRepetition)
                     .Transition().OnEpsilon().From(previous).To(currentRepetition)
@@ -122,6 +118,24 @@ namespace RegularExpressionEvaluator
             }
             sequence.Builder.Transition().OnEpsilon().From(previous).To(sequence.EndState);
             
+            return sequence;
+        }
+
+        private Sequence RepeatAtLeastOnce(Sequence sequenceToRepeat)
+        {
+            var sequence = new Sequence(StateNamer.CreateNameForStartOfSequence(), StateNamer.CreateNameForEndOfSequence());
+
+            var singleRepetition = SubsequenceNamer.CreateNameForSubSequence();
+            var anyNumberOfRepetitions = SubsequenceNamer.CreateNameForSubSequence();
+            var repeatedSequence = RepeatAnyNumberOfTimes(sequenceToRepeat);
+
+            sequence.Builder
+                .SubSequence(sequenceToRepeat.Builder, singleRepetition)
+                .SubSequence(repeatedSequence.Builder, anyNumberOfRepetitions)
+                .Transition().OnEpsilon().From(sequence.StartState).To(singleRepetition)
+                .Transition().OnEpsilon().From(singleRepetition).To(anyNumberOfRepetitions)
+                .Transition().OnEpsilon().From(anyNumberOfRepetitions).To(sequence.EndState);
+
             return sequence;
         }
 
@@ -155,7 +169,7 @@ namespace RegularExpressionEvaluator
             CreateStatesFor(subSequence);            
 
             var nextToken = PatternReader.PeekNextToken();
-            if (nextToken.TokenType == TokenType.Repeat)
+            if (nextToken.TokenType == TokenType.RepeatZeroOrMore)
             {
                 PatternReader.ReadNextToken();
                 // Make loop to itself
